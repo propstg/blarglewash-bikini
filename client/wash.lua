@@ -9,13 +9,12 @@ Wash.peds = {
     middle = Wash.InitPedData(),
 }
 
-function Wash.DoWash()
+function Wash.DoWash(vehicle)
     Citizen.CreateThread(function()
         Wash.peds.leftSide.arrived = false
         Wash.peds.rightSide.arrived = false
         Wash.peds.middle.arrived = false
 
-        local vehicle = GetVehiclePedIsUsing(PlayerPedId())
         SetVehicleEngineOn(vehicle, false, false, true)
 
         Wash.LoadCarWashAttendentModel()
