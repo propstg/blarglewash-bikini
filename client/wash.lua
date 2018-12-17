@@ -1,4 +1,3 @@
-print ('here')
 Wash = {}
 
 function Wash.InitPedData() return {arrived = false, ped = nil, rag = nil} end
@@ -9,7 +8,9 @@ Wash.peds = {
     middle = Wash.InitPedData(),
 }
 
-function Wash.DoWash(vehicle)
+function Wash.DoWash(locationIndex, vehicle)
+    local location = Config.Locations[locationIndex]
+
     Citizen.CreateThread(function()
         Wash.peds.leftSide.arrived = false
         Wash.peds.rightSide.arrived = false
@@ -21,7 +22,7 @@ function Wash.DoWash(vehicle)
         Wash.LoadAnimation()
 
         for _, pedName in pairs(Config.PedNames) do
-            Wash.CreatePedAndWalkToPosition(vehicle, pedName)
+            Wash.CreatePedAndWalkToPosition(location, vehicle, pedName)
         end
 
         Wash.WaitForWashAttendantsToArrive()
@@ -30,7 +31,7 @@ function Wash.DoWash(vehicle)
         SetVehicleEngineOn(vehicle, true, false, true)
 
         for _, pedName in pairs(Config.PedNames) do
-            Wash.WalkBackToBaseAndDeletePed(pedName)
+            Wash.WalkBackToBaseAndDeletePed(location, pedName)
         end
     end)
 end
@@ -50,9 +51,9 @@ function Wash.LoadAnimation()
     end
 end
 
-function Wash.CreatePedAndWalkToPosition(vehicle, sideName)
+function Wash.CreatePedAndWalkToPosition(location, vehicle, sideName)
     Citizen.CreateThread(function()
-        local ped = Wash.CreateCarWashAttendant()
+        local ped = Wash.CreateCarWashAttendant(location)
         local initX, initY, initZ = table.unpack(GetEntityCoords(ped))
 
         Wash.peds[sideName].ped = ped
@@ -72,8 +73,8 @@ function Wash.CreatePedAndWalkToPosition(vehicle, sideName)
     end)
 end
 
-function Wash.CreateCarWashAttendant()
-    return CreatePed(4, Config.PedModel, Config.SpawnLocation.x, Config.SpawnLocation.y, Config.SpawnLocation.z, Config.SpawnLocation.heading, true, false)
+function Wash.CreateCarWashAttendant(location)
+    return CreatePed(4, Config.PedModel, location.x, location.y, location.z, location.heading, true, false)
 end
 
 function Wash.GetDoorPosition(vehicle, sideName)
@@ -97,13 +98,11 @@ function Wash.WaitForWashAttendantsToArrive()
 end
 
 function Wash.WashCar(vehicle)
-    print('in wash car')
     Wash.PlayWashAnimations()
 
     local dirtInterval = GetVehicleDirtLevel(vehicle) / 10.0
 
     for i = 0, 10 do
-        print('waiting')
         Wash.ActuallyWashCar(vehicle, dirtInterval)
         Citizen.Wait(1000)
     end
@@ -111,8 +110,6 @@ end
 
 function Wash.PlayWashAnimations()
     for _, ped in pairs(Wash.peds) do
-        print(_)
-        print(ped)
         TaskPlayAnim(ped.ped, Config.PedAnimationDict, Config.PedAnimation, 1.0, -1.0, -1, 1, 1, true, true, true)
     end
 end
@@ -122,9 +119,9 @@ function Wash.ActuallyWashCar(vehicle, amountToClean)
     SetVehicleDirtLevel(vehicle, GetVehicleDirtLevel(vehicle) - amountToClean)
 end
 
-function Wash.WalkBackToBaseAndDeletePed(sideName)
+function Wash.WalkBackToBaseAndDeletePed(location, sideName)
     Citizen.CreateThread(function()
-        Wash.WalkPedToCoords(Wash.peds[sideName].ped, Config.SpawnLocation.x, Config.SpawnLocation.y, Config.SpawnLocation.z, 1.0)
+        Wash.WalkPedToCoords(Wash.peds[sideName].ped, location.x, location.y, location.z, 1.0)
         DeletePed(Wash.peds[sideName].ped)
         DeleteObject(Wash.peds[sideName].rag)
     end)

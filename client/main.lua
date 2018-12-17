@@ -34,7 +34,7 @@ function handleLocation(locationIndex, playerPed)
             ESX.ShowHelpNotification(_U('hint_free'))
         end
 
-        if IsControlJustPressed(1, 51) then
+        if IsControlJustPressed(1, 86) then
             purchaseWash(locationIndex, vehicle)
         end
     end
@@ -43,7 +43,7 @@ end
 function purchaseWash(locationIndex, vehicle)
     ESX.TriggerServerCallback('blarglebikini:purchaseWash', function(isPurchaseSuccessful)
         if isPurchaseSuccessful then
-            Wash.DoWash(vehicle)
+            Wash.DoWash(locationIndex, vehicle)
         else
             ESX.ShowNotification(_U('not_enough_money'))
         end

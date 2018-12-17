@@ -1,4 +1,3 @@
-print "here?"
 Blips = {}
 
 function Blips.InitBlips()
