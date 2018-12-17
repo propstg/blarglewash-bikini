@@ -1,8 +1,7 @@
 Blips = {}
 
 function Blips.InitBlips()
-    for i = 1, #Config.Locations do
-        local coords = Config.Locations[i]
+    for _, coords in pairs(Config.Locations) do
         local blip = AddBlipForCoord(coords.x, coords.y, coords.z)
         SetBlipSprite(blip, 100)
         SetBlipAsShortRange(blip, true)

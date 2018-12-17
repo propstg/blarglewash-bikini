@@ -1,46 +1,46 @@
 Wash = {}
 
-function Wash.InitPedData() return {arrived = false, ped = nil, rag = nil} end
-
 Wash.isWashing = false
-Wash.peds = {
-    leftSide = Wash.InitPedData(),
-    rightSide = Wash.InitPedData(),
-    middle = Wash.InitPedData(),
-}
+Wash.peds = {}
 
 function Wash.DoWash(locationIndex, vehicle)
-    local location = Config.Locations[locationIndex]
-
     Citizen.CreateThread(function()
         Wash.isWashing = true
-        Wash.peds.leftSide.arrived = false
-        Wash.peds.rightSide.arrived = false
-        Wash.peds.middle.arrived = false
 
-        SetVehicleEngineOn(vehicle, false, false, true)
-
+        local location = Config.Locations[locationIndex]
+        
+        Wash.peds = Wash.InitPeds()
         Wash.LoadCarWashAttendentModel()
         Wash.LoadAnimation()
 
-        for _, pedName in pairs(Config.PedNames) do
-            Wash.CreatePedAndWalkToPosition(location, vehicle, pedName)
-        end
+        SetVehicleEngineOn(vehicle, false, false, true)
 
+        Wash.CreatePedsAndWalkToPositionsAsync(location, vehicle)
         Wash.WaitForWashAttendantsToArrive()
+
         Wash.WashCar(vehicle)
 
         SetVehicleEngineOn(vehicle, true, false, true)
 
-        for _, pedName in pairs(Config.PedNames) do
-            Wash.peds[pedName].arrived = false
-            Wash.WalkBackToBaseAndDeletePed(location, pedName)
-        end
-
+        Wash.WalkBackToBaseAndDeletePedsAsync(location)
         Wash.WaitForWashAttendantsToArrive()
 
         Wash.isWashing = false
     end)
+end
+
+function Wash.InitPeds()
+    local newPeds = {}
+
+    for _, pedName in pairs(Config.PedNames) do
+        newPeds[pedName] = Wash.InitPedData()
+    end
+
+    return newPeds
+end
+
+function Wash.InitPedData()
+    return {arrived = false, ped = nil, rag = nil}
 end
 
 function Wash.LoadCarWashAttendentModel()
@@ -58,7 +58,13 @@ function Wash.LoadAnimation()
     end
 end
 
-function Wash.CreatePedAndWalkToPosition(location, vehicle, sideName)
+function Wash.CreatePedsAndWalkToPositionsAsync(location, vehicle)
+    for _, pedName in pairs(Config.PedNames) do
+        Wash.CreatePedAndWalkToPositionAsync(location, vehicle, pedName)
+    end
+end
+
+function Wash.CreatePedAndWalkToPositionAsync(location, vehicle, sideName)
     Citizen.CreateThread(function()
         local ped = Wash.CreateCarWashAttendant(location)
         local initX, initY, initZ = table.unpack(GetEntityCoords(ped))
@@ -72,9 +78,9 @@ function Wash.CreatePedAndWalkToPosition(location, vehicle, sideName)
         local boneIndex = GetPedBoneIndex(ped, 57005)
         AttachEntityToEntity(prop, ped, boneIndex, 0.12, 0.028, -0.040, 10.0, 175.0, 0.0, true, true, false, true, 1, true)
 
-        local x, y, z = table.unpack(Wash.GetDoorPosition(vehicle, sideName))
-        Wash.WalkPedToCoords(sideName, x, y, z, 2.5)
-        Wash.FaceCoords(ped, x, y, z)
+        local doorX, doorY, doorZ = table.unpack(Wash.GetDoorPosition(vehicle, sideName))
+        Wash.WalkPedToCoords(sideName, doorX, doorY, doorZ, 2.5)
+        Wash.FaceCoords(ped, doorX, doorY, doorZ)
     end)
 end
 
@@ -89,7 +95,6 @@ end
 function Wash.FaceCoords(ped, x, y, z)
     ClearPedTasks(ped)
     local p = GetEntityCoords(ped, true)
-
     local dx = x - p.x
     local dy = y - p.y
     local heading = GetHeadingFromVector_2d(dx, dy)
@@ -124,7 +129,14 @@ function Wash.ActuallyWashCar(vehicle, amountToClean)
     SetVehicleDirtLevel(vehicle, GetVehicleDirtLevel(vehicle) - amountToClean)
 end
 
-function Wash.WalkBackToBaseAndDeletePed(location, sideName)
+function Wash.WalkBackToBaseAndDeletePedsAsync(location)
+    for _, pedName in pairs(Config.PedNames) do
+        Wash.peds[pedName].arrived = false
+        Wash.WalkBackToBaseAndDeletePed(location, pedName)
+    end
+end
+
+function Wash.WalkBackToBaseAndDeletePedAsync(location, sideName)
     Citizen.CreateThread(function()
         Wash.WalkPedToCoords(sideName, location.x, location.y, location.z, 1.0)
         DeletePed(Wash.peds[sideName].ped)
@@ -149,7 +161,7 @@ function Wash.WalkPedToCoords(sideName, x, y, z, allowedDistance)
         end
 
         if (dist < allowedDistance -- legit arrived
-            or (timesAtLastDistance > 10 and lastDistance < 5.0) -- stuck close to the vehicle
+            or (timesAtLastDistance > 10 and lastDistance < 5.0) -- stuck close to the end point
             or dist > 150.0 -- running away
             or IsPedDeadOrDying(ped, 1)
            ) then

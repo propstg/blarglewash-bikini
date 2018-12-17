@@ -11,4 +11,5 @@ Config.RagPropName = 'prop_rag_01'
 Config.Locations = {
     {x = 1981.5738, y = 3058.1286, z = 47.1975, heading = 310.71}
 }
+
 Config.DistanceFromSpawnLocation = 15.0
