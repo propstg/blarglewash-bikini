@@ -11,7 +11,7 @@ Citizen.CreateThread(function()
     while true do
         Citizen.Wait(10)
 
-        if Wash.IsWashing() != true then
+        if not Wash.IsWashing() then
             local playerPed = PlayerPedId()
 
             if IsPedInAnyVehicle(playerPed, true) then

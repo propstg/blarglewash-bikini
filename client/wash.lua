@@ -33,8 +33,11 @@ function Wash.DoWash(locationIndex, vehicle)
         SetVehicleEngineOn(vehicle, true, false, true)
 
         for _, pedName in pairs(Config.PedNames) do
+            Wash.peds[pedName].arrived = false
             Wash.WalkBackToBaseAndDeletePed(location, pedName)
         end
+	
+        Wash.WaitForWashAttendantsToArrive()
 
         Wash.isWashing = false
     end)
@@ -70,10 +73,8 @@ function Wash.CreatePedAndWalkToPosition(location, vehicle, sideName)
         AttachEntityToEntity(prop, ped, boneIndex, 0.12, 0.028, -0.040, 10.0, 175.0, 0.0, true, true, false, true, 1, true)
 
         local x, y, z = table.unpack(Wash.GetDoorPosition(vehicle, sideName))
-        Wash.WalkPedToCoords(ped, x, y, z, 2.5)
+        Wash.WalkPedToCoords(sideName, x, y, z, 2.5)
         Wash.FaceCoords(ped, x, y, z)
-
-        Wash.peds[sideName].arrived = true
     end)
 end
 
@@ -125,13 +126,14 @@ end
 
 function Wash.WalkBackToBaseAndDeletePed(location, sideName)
     Citizen.CreateThread(function()
-        Wash.WalkPedToCoords(Wash.peds[sideName].ped, location.x, location.y, location.z, 1.0)
+        Wash.WalkPedToCoords(sideName, location.x, location.y, location.z, 1.0)
         DeletePed(Wash.peds[sideName].ped)
         DeleteObject(Wash.peds[sideName].rag)
     end)
 end
 
-function Wash.WalkPedToCoords(ped, x, y, z, allowedDistance)
+function Wash.WalkPedToCoords(sideName, x, y, z, allowedDistance)
+    local ped = Wash.peds[sideName].ped
     TaskGoToCoordAnyMeans(ped, x, y, z, 1.0, 0, 0, 786603, 1.0)
 
     local lastDistance = 1000
@@ -146,12 +148,18 @@ function Wash.WalkPedToCoords(ped, x, y, z, allowedDistance)
             timesAtLastDistance = timesAtLastDistance + 1
         end
 
-        if (dist < allowedDistance or (timesAtLastDistance > 10 and lastDistance < 5.0)) then
+        if (dist < allowedDistance -- legit arrived
+            or (timesAtLastDistance > 10 and lastDistance < 5.0) -- stuck close to the vehicle
+            or dist > 150.0 -- running away
+            or IsPedDeadOrDying(ped, 1)
+           ) then
             break
         end
 
         lastDistance = dist
     end
+
+    Wash.peds[sideName].arrived = true
 end
 
 function Wash.IsWashing()
