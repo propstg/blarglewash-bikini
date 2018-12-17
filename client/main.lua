@@ -1,6 +1,13 @@
+ESX = nil
+
 Blips.InitBlips()
 
 Citizen.CreateThread(function()
+    while ESX == nil do
+        TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+        Citizen.Wait(0)
+    end
+
     while true do
         Citizen.Wait(10)
 
@@ -18,7 +25,7 @@ end)
 
 function handleLocation(locationIndex, playerPed)
     local vehicle = GetVehiclePedIsUsing(playerPed)
-    local coords = Config.Locations[locationIndex].Entrance;
+    local coords = Config.Locations[locationIndex];
     
     if GetDistanceBetweenCoords(GetEntityCoords(playerPed), coords.x, coords.y, coords.z, true) < Config.DistanceFromSpawnLocation then
         if Config.Price > 0 then

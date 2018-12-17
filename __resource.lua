@@ -14,6 +14,7 @@ client_scripts {
     'locales/en.lua',
     'config.lua',
     'client/wash.lua',
+    'client/blips.lua',
     'client/main.lua',
 }
 

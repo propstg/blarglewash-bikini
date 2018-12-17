@@ -1,4 +1,5 @@
 Config = {}
+Config.Locale = 'en'
 Config.Price = 100
 Config.PedNames = {'leftSide', 'rightSide', 'middle'}
 Config.BoneNames = {leftSide = 'seat_dside_f', rightSide = 'seat_pside_f', middle = 'bonnet'}
