@@ -11,14 +11,16 @@ Citizen.CreateThread(function()
     while true do
         Citizen.Wait(10)
 
-        local playerPed = PlayerPedId()
+        if Wash.IsWashing() != true then
+            local playerPed = PlayerPedId()
 
-        if IsPedInAnyVehicle(playerPed, true) then
-            for i = 1, #Config.Locations do
-                handleLocation(i, playerPed)
+            if IsPedInAnyVehicle(playerPed, true) then
+                for i = 1, #Config.Locations do
+                    handleLocation(i, playerPed)
+                end
+            else
+                Citizen.Wait(1000)
             end
-        else
-            Citizen.Wait(1000)
         end
     end
 end)
