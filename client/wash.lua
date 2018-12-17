@@ -2,6 +2,7 @@ Wash = {}
 
 function Wash.InitPedData() return {arrived = false, ped = nil, rag = nil} end
 
+Wash.isWashing = false
 Wash.peds = {
     leftSide = Wash.InitPedData(),
     rightSide = Wash.InitPedData(),
@@ -12,6 +13,7 @@ function Wash.DoWash(locationIndex, vehicle)
     local location = Config.Locations[locationIndex]
 
     Citizen.CreateThread(function()
+        Wash.isWashing = true
         Wash.peds.leftSide.arrived = false
         Wash.peds.rightSide.arrived = false
         Wash.peds.middle.arrived = false
@@ -33,6 +35,8 @@ function Wash.DoWash(locationIndex, vehicle)
         for _, pedName in pairs(Config.PedNames) do
             Wash.WalkBackToBaseAndDeletePed(location, pedName)
         end
+
+        Wash.isWashing = false
     end)
 end
 
@@ -148,4 +152,8 @@ function Wash.WalkPedToCoords(ped, x, y, z, allowedDistance)
 
         lastDistance = dist
     end
+end
+
+function Wash.IsWashing()
+    return Wash.isWashing
 end
