@@ -49,9 +49,3 @@ function purchaseWash(locationIndex, vehicle)
         end
     end)
 end
-
-RegisterCommand('wash2', function (source, args)
-    TriggerEvent('chatMessage', source, "test", "test")
-    local vehicle = GetVehiclePedIsUsing(PlayerPedId())
-    Wash.DoWash(vehicle)
-end, false)
