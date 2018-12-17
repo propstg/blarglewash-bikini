@@ -132,7 +132,7 @@ end
 function Wash.WalkBackToBaseAndDeletePedsAsync(location)
     for _, pedName in pairs(Config.PedNames) do
         Wash.peds[pedName].arrived = false
-        Wash.WalkBackToBaseAndDeletePed(location, pedName)
+        Wash.WalkBackToBaseAndDeletePedAsync(location, pedName)
     end
 end
 
@@ -162,7 +162,7 @@ function Wash.WalkPedToCoords(sideName, x, y, z, allowedDistance)
 
         if (dist < allowedDistance -- legit arrived
             or (timesAtLastDistance > 10 and lastDistance < 5.0) -- stuck close to the end point
-            or dist > 150.0 -- running away
+            or IsPedFleeing(ped)
             or IsPedDeadOrDying(ped, 1)
            ) then
             break

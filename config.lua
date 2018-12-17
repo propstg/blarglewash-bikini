@@ -9,7 +9,8 @@ Config.PedAnimation = 'idle_b'
 Config.RagPropName = 'prop_rag_01'
 
 Config.Locations = {
-    {x = 1981.5738, y = 3058.1286, z = 47.1975, heading = 310.71}
+    {x = 1981.5738, y = 3058.1286, z = 47.1975, heading = 310.71},
+    {x = 40.8928, y = -1400.4321, z = 29.3501, heading = 326.9},
 }
 
 Config.DistanceFromSpawnLocation = 15.0
