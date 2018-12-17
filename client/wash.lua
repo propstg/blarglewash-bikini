@@ -36,7 +36,7 @@ function Wash.DoWash(locationIndex, vehicle)
             Wash.peds[pedName].arrived = false
             Wash.WalkBackToBaseAndDeletePed(location, pedName)
         end
-	
+
         Wash.WaitForWashAttendantsToArrive()
 
         Wash.isWashing = false
