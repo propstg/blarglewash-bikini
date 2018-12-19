@@ -3,7 +3,7 @@ Config.Locale = 'en'
 Config.Price = 100
 Config.PedNames = {'leftSide', 'rightSide', 'middle'}
 Config.BoneNames = {leftSide = 'seat_dside_f', rightSide = 'seat_pside_f', middle = 'bonnet'}
-Config.PedModel = 's_f_y_hooker_01'
+Config.PedModels = {'s_f_y_hooker_01', 'a_f_m_beach_01'}
 Config.PedAnimationDict = 'amb@world_human_maid_clean@idle_a'
 Config.PedAnimation = 'idle_b'
 Config.RagPropName = 'prop_rag_01'

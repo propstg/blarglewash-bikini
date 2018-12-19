@@ -10,7 +10,7 @@ function Wash.DoWash(locationIndex, vehicle)
         local location = Config.Locations[locationIndex]
         
         Wash.peds = Wash.InitPeds()
-        Wash.LoadCarWashAttendentModel()
+        Wash.LoadCarWashAttendentModels()
         Wash.LoadAnimation()
 
         SetVehicleEngineOn(vehicle, false, false, true)
@@ -43,11 +43,13 @@ function Wash.InitPedData()
     return {arrived = false, ped = nil, rag = nil}
 end
 
-function Wash.LoadCarWashAttendentModel()
-    RequestModel(GetHashKey(Config.PedModel))
-    while not HasModelLoaded(GetHashKey(Config.PedModel)) do
-        RequestModel(GetHashKey(Config.PedModel))
-        Citizen.Wait(1000)
+function Wash.LoadCarWashAttendentModels()
+    for _, model in pairs(Config.PedModels) do
+        RequestModel(GetHashKey(model))
+        while not HasModelLoaded(GetHashKey(model)) do
+            RequestModel(GetHashKey(model))
+            Citizen.Wait(1000)
+        end
     end
 end
 
@@ -85,11 +87,17 @@ function Wash.CreatePedAndWalkToPositionAsync(location, vehicle, sideName)
 end
 
 function Wash.CreateCarWashAttendant(location)
-    return CreatePed(4, Config.PedModel, location.x, location.y, location.z, location.heading, true, false)
+    return CreatePed(4, Config.PedModels[math.random(1, #Config.PedModels)], location.x, location.y, location.z, location.heading, true, false)
 end
 
 function Wash.GetDoorPosition(vehicle, sideName)
-    return GetWorldPositionOfEntityBone(vehicle, GetEntityBoneIndexByName(vehicle, Config.BoneNames[sideName]))
+    local boneIndex = GetEntityBoneIndexByName(vehicle, Config.BoneNames[sideName])
+
+    if boneIndex == -1 then
+        boneIndex = GetEntityBoneIndexByName(vehicle, Config.BoneNames.leftSide)
+    end
+
+    return GetWorldPositionOfEntityBone(vehicle, boneIndex)
 end
 
 function Wash.FaceCoords(ped, x, y, z)
