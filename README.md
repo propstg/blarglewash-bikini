@@ -3,6 +3,8 @@ This is an NPC-ran bikini wash. Drive to one of the Car Wash blips on the map an
 
 Default locations are at the Yellow Jack and behind the large car wash in Los Santos.
 
+Note: Not used or tested in the last 2 years, so almost definitely broken in some way due to updates.
+
 ## Download & Installation
 
 ### Using Git
@@ -26,7 +28,7 @@ start blarglewash-bikini
 ### License
 blarglewash-bikini - NPC bikini wash
 
-Copyright (C) 2018 blarglebottoms
+Copyright (C) 2021 Gregory Propst
 
 This program Is free software: you can redistribute it And/Or modify it under the terms Of the GNU General Public License As published by the Free Software Foundation, either version 3 Of the License, Or (at your option) any later version.
 
